@@ -1,30 +1,48 @@
 <template>
     <v-ons-page>
-      <v-ons-toolbar>
-        <div class="center">{{ title }}</div>
-        <div class="right">
-          <v-ons-toolbar-button>
-            <v-ons-icon icon="ion-navicon, material: md-menu"></v-ons-icon>
-          </v-ons-toolbar-button>
-        </div>
-      </v-ons-toolbar>
-      <div style="text-align: center; padding-top:10px">Hello World!</div>
-      <p style="text-align: center">
-        <v-ons-button @click="alert">Click Me!</v-ons-button>
-      </p>
+      <AppToolbar/>
+      <div class="center">
+           <AppSearch :query.sync="query" />
+           <v-ons-list>
+             <v-ons-list-header>Repositories of {{query}}</v-ons-list-header>
+             <v-ons-list-item v-for="repo in repos" :key="repo.id">
+               <div class="left">
+                  <img class="list-item__thumbnail" src="repo.owner.avatar_url">
+              </div>
+              <div class="center">
+                <span class="list-item__title">{{repo.name}}</span>
+                <span class="list-item__subtitle">{{repo.description}}</span>
+              </div>
+             </v-ons-list-item>
+           </v-ons-list>
+      </div>
     </v-ons-page>
 </template>
 <script>
-  export default{
+import debounce from 'lodash/debounce'
+import AppToolbar from './components/AppToolbar'
+import AppSearch from './components/AppSearch'
+import { gitHub } from './services/GitHub'
+  export default {
+    components:{
+      AppToolbar,
+      AppSearch
+    },
     data() {
       return {
-        title: 'My app'
+        query:'',
+        repos:[]
       };
     },
-    methods: {
-      alert() {
-        this.$ons.notification.alert('This is an Onsen UI alert notification test.');
-      }
+    watch:{
+      query: debounce(function(NewValue){
+        gitHub.getRepos(NewValue)
+        .then((response)=>{
+          this.repos = response.data
+          console.log(this.repos)
+        })
+      },500)
     }
+    
   };
 </script>
