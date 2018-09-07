@@ -8,7 +8,8 @@ export default class GitHub{
     }
 
     getRepos(username){
-        return axios.get(`users/${username}/repos`);
+        let accessToken = '28627ac497188e7bbe6ad78fd3bf9f5513ef1150'
+        return axios.get(`users/${username}/repos`, { headers: {"Authorization" : `Bearer ${accessToken}`} })
     }
 
 }
